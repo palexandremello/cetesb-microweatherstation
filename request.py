@@ -4,9 +4,10 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 url = 'http://qualar.cetesb.sp.gov.br/qualar/home.do'
-url_post_pgin='http://qualar.cetesb.sp.gov.br/qualar/autenticador'
-url_post_pgin2='http://qualar.cetesb.sp.gov.br/qualar/exportaDados.do'
-payload = {"cetesb_login":"palexandremello@gmail.com","cetesb_password":"147258loki","enviar":"OK"}
+url_post_pgin = 'http://qualar.cetesb.sp.gov.br/qualar/autenticador'
+url_post_pgin2 = 'http://qualar.cetesb.sp.gov.br/qualar/exportaDados.do'
+payload = {"cetesb_login": "palexandremello@gmail.com",
+           "cetesb_password": "147258loki", "enviar": "OK"}
 
 postHeaders = {
     'Accept-Language': 'en-US,en;q=0.8',
@@ -23,10 +24,10 @@ response = session.post(url, data=payload, headers=postHeaders)
 response = session.post(url_post_pgin, data=payload, headers=postHeaders)
 
 
-data = {'method':'pesquisar','irede':'A',
-           'dataInicialStr':'24/08/2018','dataFinalStr':'24/08/2018',
-           'cDadosInvalidos:':'on','iTipoDado':'P',
-           'estacaoVO.nestcaMonto':'288','parametroVO.nparmt':'28'}
+data = {'method': 'pesquisar', 'irede': 'A',
+        'dataInicialStr': '24/08/2018', 'dataFinalStr': '24/08/2018',
+        'cDadosInvalidos:': 'on', 'iTipoDado': 'P',
+        'estacaoVO.nestcaMonto': '288', 'parametroVO.nparmt': '28'}
 
 response = session.post(url_post_pgin2, data=data, headers=postHeaders)
 
@@ -34,59 +35,61 @@ doc = lh.fromstring(response.content)
 
 tr_elements = doc.xpath('//tr')[5:]
 
-col=[]
-i=0
+col = []
+i = 0
 
-#For each row, store each first element (header) and an empty list
-elements = ['','Tipo de Rede', 'Tipo de Monitoramento','Tipo', 
-            'Data','Hora','Código Estação',
-            'Nome Estação','Nome Parâmetro', 'Unidade de Medida',
-            'Média Horária','Média Móvel', 'Válido',
-            'Dt. Amostragem','Dt. Instalação', 'Dt. Retirada', 
-            'Concentração', 'Taxa','']
+# For each row, store each first element (header) and an empty list
+elements = ['', 'Tipo de Rede', 'Tipo de Monitoramento', 'Tipo',
+            'Data', 'Hora', 'Código Estação',
+            'Nome Estação', 'Nome Parâmetro', 'Unidade de Medida',
+            'Média Horária', 'Média Móvel', 'Válido',
+            'Dt. Amostragem', 'Dt. Instalação', 'Dt. Retirada',
+            'Concentração', 'Taxa', '']
 for t in elements:
-    i+=1
-    #name=t.text_content().strip()
+    i += 1
+    # name=t.text_content().strip()
     #print ('%d:"%s"'%(i,name))
-    col.append((t,[]))
+    col.append((t, []))
 
 
-for j in range(1,len(tr_elements)):
-    #T is our j'th row
-    T=tr_elements[j]
-    #If row is not of size 10, the //tr data is not from our table 
-    if len(T)!=19:
+for j in range(1, len(tr_elements)):
+    # T is our j'th row
+    T = tr_elements[j]
+    # If row is not of size 10, the //tr data is not from our table
+    if len(T) != 19:
         break
-    
-    #i is the index of our column
-    i=0
-    
-    #Iterate through each element of the row
+
+    # i is the index of our column
+    i = 0
+
+    # Iterate through each element of the row
     for t in T.iterchildren():
-        data=t.text_content().strip().replace(',','.')
-        #Check if row is empty
-        if i>0:
-        #Convert any numerical value to integers
+        data = t.text_content().strip().replace(',', '.')
+        # Check if row is empty
+        if i > 0:
+            # Convert any numerical value to integers
             try:
-                data=int(data)
+                data = int(data)
             except:
                 pass
 
-        #Append the data to the empty list of the i'th column
+        # Append the data to the empty list of the i'th column
         col[i][1].append(data)
-        #Increment i for the next column
-        i+=1
+        # Increment i for the next column
+        i += 1
 
 
-Dict={title:column for (title,column) in col}
+Dict = {title: column for (title, column) in col}
 
-df=pd.DataFrame(Dict)
+df = pd.DataFrame(Dict)
 
 try:
-	df['Média Horária'] = df['Média Horária'].replace({',': '.'}, regex=True).astype('float64')
+    df['Média Horária'] = df['Média Horária'].replace(
+        {',': '.'}, regex=True).astype('float64')
 except:
-	pass
+    pass
 
 print(df['Média Horária'].values)
-plt.figure(); df['Média Horária'].plot();
+plt.figure()
+df['Média Horária'].plot()
 plt.show()
