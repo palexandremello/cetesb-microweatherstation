@@ -28,7 +28,7 @@ response = session.post(url_post_pgin, data=payload, headers=postHeaders)
 
 
 data = {'method': 'pesquisar', 'irede': 'A',
-        'dataInicialStr': '24/08/2018', 'dataFinalStr': '24/08/2018',
+        'dataInicialStr': '27/08/2018', 'dataFinalStr': '27/08/2018',
         'cDadosInvalidos:': 'on', 'iTipoDado': 'P',
         'estacaoVO.nestcaMonto': '288', 'parametroVO.nparmt': '28'}
 
@@ -96,3 +96,6 @@ print(df['Média Horária'].values)
 plt.figure()
 df['Média Horária'].plot()
 plt.show()
+
+
+
