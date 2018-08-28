@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import matplotlib.pyplot as plt
+import csv 
 
 class cetesb(object):
 	"""docstring for cetesb"""
@@ -40,11 +41,11 @@ class cetesb(object):
 		i = 0
 		# For each row, store each first element (header) and an empty list
 		elements = ['Retirar','TipoDeRede', 'TipoDeMonitoramento', 'Tipo',
-		'Data', 'Hora', 'CódigoEstação',
-		'NomeEstação', 'NomeParâmetro','UnidadeDeMedida',
-		'MédiaHorária', 'MédiaMóvel','Válido',
-		'Dt.Amostragem', 'Dt.Instalação','Dt.Retirada', 
-		'Concentração', 'Taxa','Retirar2']
+		'Data', 'Hora', 'CodigoEstacao',
+		'NomeEstacao', 'NomeParametro','UnidadeDeMedida',
+		'MediaHoraria', 'MediaMovel','Valido',
+		'Dt.Amostragem', 'Dt.Instalacao','Dt.Retirada', 
+		'Concentracao', 'Taxa','Retirar2']
 		
 		for t in range(0,len(elements)):
 			col.append((elements[t], []))
@@ -69,34 +70,86 @@ class cetesb(object):
 		return col
 
 	def __ToDict(data):
-		import pandas
+		import pandas as pd
 		Dict = {title: column for (title, column) in data}
 		df = pd.DataFrame(Dict)
 		try:
-			df['MédiaHorária'] = df['MédiaHorária'].replace({',': '.'}, regex=True).astype('float64')
+			df['MediaHoraria'] = df['MediaHoraria'].replace({',': '.'}, regex=True).astype('float64')
 		except:
 			pass
 		return df
 
 	def __exportCSV(exportingToCsv,df):
-		import pandas as pd
 		if exportingToCsv is True:
+				df, varname, datetime, codEst, parameterName = cetesb.__getColumnsName(df)
+				df.to_csv("Cod{0}_{1}_{2}.csv".format(codEst,parameterName,datetime), sep=',',encoding='utf-8',index=False)
+				return df
+		else:
+			return df
+
+	def CsvToJson(df, format='pretty'):
+		import csv
+		import pandas as pd
+		df, varname, datetime, codEst, parameterName = cetesb.__getColumnsName(df)
+		file="Cod{0}_{1}_{2}.csv".format(codEst,parameterName,datetime)
+		jsonFile="Cod{0}_{1}_{2}.json".format(codEst,parameterName,datetime)
+		csv_rows = []
+		with open(file) as csvfile:
+			reader = csv.DictReader(csvfile)
+			title = reader.fieldnames
+			for row in reader:
+				csv_rows.extend([{title[i]:row[title[i]] for i in range(len(title))}])
+
+			cetesb.__write_json(csv_rows, jsonFile, format)
+
+	def __write_json(data, jsonFile, format='pretty'):
+		import json
+		with open(jsonFile, "w") as f:
+			if format == "pretty":
+				f.write(json.dumps(data, sort_keys=False, indent=4, separators=(',', ': '),ensure_ascii=False))
+			else:
+				f.write(json.dumps(data))
+	def __getColumnsName(df):
+		import pandas as pd 
+		for colName in df:
+			if colName is 'Retirar':
 				varname = list(df.head(0))[8]
 				datetime = df[list(df.head(0))[4]][0].replace('/','')
 				codEst = df[list(df.head(0))[6]][0]
 				parameterName = df[varname][0].split(' ')[0]
 				df = df.drop(['Retirar','Retirar2'],axis=1)
-				df.to_csv("Cod{0}_{1}_{2}.csv".format(codEst,parameterName,datetime), sep=',',encoding='utf-8',index=False)
-				return df
-		else:
-			return df 
-		  
+			elif colName is 'Retirar2':
+				pass
+			else:
+				varname = list(df.head(0))[7]
+				datetime = df[list(df.head(0))[3]][0].replace('/','')
+				codEst = df[list(df.head(0))[5]][0]
+				parameterName = df[varname][0].split(' ')[0]
+		return df, varname, datetime, codEst, parameterName
 
-vars = ['56','29']
+import pandas as pdf
 
-import pandas as pd
+vars = ['56','29','63']
 
-for x in vars:
-	df = cetesb.getData('27/08/2018','27/08/2018','288',x,exportcsv=True)
-	df['MédiaHorária'].plot()
-	plt.show()
+df = cetesb.getData('28/08/2018','28/08/2018','288',vars[2],exportcsv=True)
+cetesb.CsvToJson(df)
+df['MediaHorária'] = df['MediaHoraria'] * 0.29
+df['MediaHoraria'].plot()
+#plt.show()
+
+				
+#			else:
+#				varname = list(df.head(0))[7]
+#				datetime = df[list(df.head(0))[3]][0].replace('/','')
+#				codEst = df[list(df.head(0))[5]][0]
+#			    return df, varname, datetime, codEst, parameterName
+
+
+
+
+
+#Convert csv data into json and write it
+
+
+
+#print(cetesb.CsvToJson('Cod288_O3_28082018.csv','Cod288_O3_28082018.json'))
