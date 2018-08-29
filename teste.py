@@ -10,6 +10,6 @@ def job():
     print(type(df))
     cetesb.CsvToJson(df)
     df['MediaHorária'] = df['MediaHoraria'] * 0.29
-    df['MediaHoraria'].plot()
+    print(df)
 
 sched.start()
