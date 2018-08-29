@@ -1,9 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import matplotlib.pyplot as plt
-import csv 
-
 class cetesb(object):
 	"""docstring for cetesb"""
 	def __init__(self):
@@ -127,29 +124,3 @@ class cetesb(object):
 				parameterName = df[varname][0].split(' ')[0]
 		return df, varname, datetime, codEst, parameterName
 
-import pandas as pdf
-
-vars = ['56','29','63']
-
-df = cetesb.getData('28/08/2018','28/08/2018','288',vars[2],exportcsv=True)
-cetesb.CsvToJson(df)
-df['MediaHorária'] = df['MediaHoraria'] * 0.29
-df['MediaHoraria'].plot()
-#plt.show()
-
-				
-#			else:
-#				varname = list(df.head(0))[7]
-#				datetime = df[list(df.head(0))[3]][0].replace('/','')
-#				codEst = df[list(df.head(0))[5]][0]
-#			    return df, varname, datetime, codEst, parameterName
-
-
-
-
-
-#Convert csv data into json and write it
-
-
-
-#print(cetesb.CsvToJson('Cod288_O3_28082018.csv','Cod288_O3_28082018.json'))
