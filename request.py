@@ -10,7 +10,7 @@ url = 'http://qualar.cetesb.sp.gov.br/qualar/home.do'
 url_post_pgin = 'http://qualar.cetesb.sp.gov.br/qualar/autenticador'
 url_post_pgin2 = 'http://qualar.cetesb.sp.gov.br/qualar/exportaDados.do'
 payload = {"cetesb_login": "palexandremello@gmail.com",
-           "cetesb_password": "147258loki", "enviar": "OK"}
+           "cetesb_password": "password", "enviar": "OK"}
 
 postHeaders = {
     'Accept-Language': 'en-US,en;q=0.8',
